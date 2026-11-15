@@ -11,10 +11,8 @@ import java.nio.file.Path;
 public class Main {
     private static final String BOM = "\uFEFF";
     private static final String ISA_TAG = "ISA";
-    private static final int ISA_LENGTH = 106;
 
     public static void main(String[] args) {
-
         try {
             String content = readFile(Path.of("po_850.edi"));
             Separators separators = validateIsa(content);
@@ -43,10 +41,8 @@ public class Main {
             throw new EdiException(ErrorCode.NOT_X12, "File is empty.");
         }
         if (!content.startsWith(ISA_TAG)) {
-            throw new EdiException(ErrorCode.NOT_X12, "Not an X12 file: content must start with " + ISA_TAG + " segment, found '" + content.substring(0, Math.min(3, content.length())) + "'");
-        }
-        if (content.length() < ISA_LENGTH) {
-            throw new EdiException(ErrorCode.INVALID_ISA, "File too short to contain ISA segment: expected at least " + ISA_LENGTH + " characters, found " + content.length());
+            throw new EdiException(ErrorCode.NOT_X12, "Not an X12 file: content must start with " + ISA_TAG + " segment, found '"
+                    + content.substring(0, Math.min(ISA_TAG.length(), content.length())) + "'");
         }
         Separators sep = Separators.fromIsa(content);
         if (!sep.areDistinct()) {
