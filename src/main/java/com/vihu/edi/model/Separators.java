@@ -1,4 +1,4 @@
-package com.vihu.edi;
+package com.vihu.edi.model;
 
 import com.vihu.edi.exception.EdiException;
 import com.vihu.edi.exception.ErrorCode;
@@ -29,14 +29,12 @@ public record Separators(char element, char component, char segment) {
     }
 
     public static Separators fromIsa(String content) throws EdiException {
-        // Крок 1
         if (content.length() <= ELEMENT_POS) {
             throw new EdiException(ErrorCode.INVALID_ISA,
                     "ISA is too short to contain an element separator");
         }
         char element = content.charAt(ELEMENT_POS);
 
-        // Крок 2
         int lastPos = Math.min(LAST_SEPARATOR_POS, content.length() - 3);
         int separatorCount = 0;
 
@@ -46,7 +44,7 @@ public record Separators(char element, char component, char segment) {
                 if (separatorCount == ISA_ELEMENT_COUNT) {
                     char component = content.charAt(i + 1);
                     char segment = content.charAt(i + 2);
-                    // Крок 3
+
                     checkSegmentAfterIsa(content, i + 3, element);
                     return new Separators(element, component, segment);
                 }
@@ -68,13 +66,13 @@ public record Separators(char element, char component, char segment) {
         if (tagEnd == -1 || tagEnd - pos > MAX_TAG_LENGTH) {
             String found = content.substring(pos, Math.min(pos + MAX_TAG_LENGTH, content.length()));
             throw new EdiException(ErrorCode.INVALID_ISA,
-                    "Segment after ISA must be one of " + ALLOWED_AFTER_ISA + ", found '" + found + "'");
+                    "Segment after ISA must be one of GS, TA1 or IEA, found '" + found + "'");
         }
 
         String tag = content.substring(pos, tagEnd);
         if (!ALLOWED_AFTER_ISA.contains(tag)) {
             throw new EdiException(ErrorCode.INVALID_ISA,
-                    "Segment after ISA must be one of " + ALLOWED_AFTER_ISA + ", found '" + tag + "'");
+                    "Segment after ISA must be one of GS, TA1 or IEA, found '" + tag + "'");
         }
     }
 }
